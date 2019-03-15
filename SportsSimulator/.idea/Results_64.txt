@@ -1,11 +1,26 @@
 East
 
-Duke Drake
+Iona Norfolk State
 
-Duke: 2 - (by 10+): 2
-Drake: 0 - (by 10+): 0
+Iona: 10
+Norfolk State: 0
 
-BYU Baylor
-BYU: 1 - (by 10+): 0
-Baylor: 1 - (by 10+): 1
+UCF Utah State
+
+UCF: 6
+Utah State: 4
+
+Texas Ohio State
+
+Texas: 2
+Ohio State: 8
+
+Wisconsin Liberty
+
+Wisconsin: 9
+Liberty: 1
+
+Villanova TCU
+Villanova: 5
+TCU: 5
 
