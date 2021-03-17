@@ -116,11 +116,22 @@ while n < rounds + 1:
                 # print(browser.page_source)
                 # f = browser.find_element(By.ID,"fancybox-frame")
                 # browser.switch_to.frame(f)
-                frame = browser.find_element_by_xpath('//*[@id="fancybox-frame"]')
-                browser.switch_to.frame(frame)
+                while True:
+                    try:
+                        frame = browser.find_element_by_xpath('//*[@id="fancybox-frame"]')
+                        browser.switch_to.frame(frame)
+                        break
+                    except NoSuchElementException:
+                        print("Couldn't find iFrame. Trying again...")
+                
                 # pass1 = browser.find_element_by_id("PASSFIELD1")
-                awayScore = browser.find_element_by_xpath('/html/body/div[2]/div[1]/table/tbody/tr[2]/td[4]').text
-                homeScore = browser.find_element_by_xpath('/html/body/div[2]/div[1]/table/tbody/tr[3]/td[4]').text
+                while True:
+                    try:
+                        awayScore = browser.find_element_by_xpath('/html/body/div[2]/div[1]/table/tbody/tr[2]/td[4]').text
+                        homeScore = browser.find_element_by_xpath('/html/body/div[2]/div[1]/table/tbody/tr[3]/td[4]').text
+                        break
+                    except NoSuchElementException:
+                        print("Couldn't find scores. Trying again...")
 
                 homeScore = int(homeScore)
                 awayScore = int(awayScore)
@@ -164,8 +175,8 @@ while n < rounds + 1:
             # print(away + ": " + str(awayWins) + "\t\t (by 10+): " + str(awayLandslide))
             print(" ")
             #Without Dominations
-            print(home + ": " + str(homeWins))
-            print(away + ": " + str(awayWins))
+            print(home + ": " + str(homeWins) + "("+str(homeLandslide)+")")
+            print(away + ": " + str(awayWins) + "("+str(awayLandslide)+")")
             print(" ")
 
             #Writing result data -> Results
