@@ -2,26 +2,39 @@ import requests
 import time
 # from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.common.action_chains import ActionChains
 import urllib3
 import re
 
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
-url = 'https://www.whatifsports.com/ncaab/'
-browser = webdriver.Firefox()
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
-rounds = 5
-n=1
-sims = 3
+url = 'https://www.whatifsports.com/ncaab/'
+
+# Initialize Firefox Options
+# Set the path to the ad blocker extension
+# Add the ad blocker extension to Firefox Options
+
+# Now, use these options when initializing the Firefox WebDriver
+browser = webdriver.Firefox()
+browser.install_addon('./ublock.xpi', temporary=True)
+
+# rounds = 1
+rounds = 4
+n = 1
+sims = 1
 
 while n < rounds + 1:
-    #Opens the Teams and Results file for reading and writting
-    m=n+1
+    # Opens the Teams and Results file for reading and writting
+    m = n+1
     with open('Teams_'+str(n)+'.txt') as t, open('Teams_'+str(m)+'.txt', 'w') as w, open('Winners', 'w') as r:
         for line in t:
             while True:
@@ -31,7 +44,7 @@ while n < rounds + 1:
                 except WebDriverException:
                     print("Website didn't load. Trying again...")
 
-            #Re-initializing Variables
+            # Re-initializing Variables
             homeWins = 0
             awayWins = 0
             homeLandslide = 0
@@ -41,26 +54,26 @@ while n < rounds + 1:
             home = next(t)
             home = home.split()
 
-            if away.__len__()==2:
+            if away.__len__() == 2:
                 away = away[0]+' '+away[1]
-            elif away.__len__()==3:
-                away = away[0]+' ' +away[1]+ ' ' +away[2]
+            elif away.__len__() == 3:
+                away = away[0]+' ' + away[1] + ' ' + away[2]
             else:
                 away = away[0]
-            if home.__len__()==2:
-                home = home[0]+' ' +home[1]
-            elif home.__len__()==3:
-                home = home[0]+' ' +home[1]+ ' ' +home[2]
+            if home.__len__() == 2:
+                home = home[0]+' ' + home[1]
+            elif home.__len__() == 3:
+                home = home[0]+' ' + home[1] + ' ' + home[2]
             else:
-                home = home [0]
+                home = home[0]
 
-            #Num of Simulations per game
+            # Num of Simulations per game
             # sims = 2
 
-            r.write(line + "\n") #Writes the text in the results
+            r.write(line + "\n")  # Writes the text in the results
             split = line.split()
 
-            #To detect headers IE: South, East etc..
+            # To detect headers IE: South, East etc..
             # if split.__len__() == 1:
             #     continue
             # elif split.__len__() > 1:
@@ -70,8 +83,7 @@ while n < rounds + 1:
             #     print home
             #     print away
 
-
-            #Finds the home and away team. Doesn't really matter since they are at neutral site
+            # Finds the home and away team. Doesn't really matter since they are at neutral site
 
             # if split.__len__() == 3:
             #     home = split[0]
@@ -84,33 +96,36 @@ while n < rounds + 1:
             #     home = split[0]
             #     away = split[1]
 
-
-            #Selects the away teams from the dropdown menus (Maybe could make a function out of these)
-            ddAway = Select(browser.find_element_by_id("vname"))
+            # Selects the away teams from the dropdown menus (Maybe could make a function out of these)
+            # ddAway = Select(browser.find_element(By.ID, "vname"))
+            dropdown_element = WebDriverWait(browser, 10).until(
+                EC.element_to_be_clickable((By.ID, "vname"))
+            )
+            ddAway = Select(dropdown_element)
             ddAway.select_by_visible_text(away)
-            btnAway = browser.find_element_by_id("visitorbtn")
+            btnAway = browser.find_element(By.ID, "visitorbtn")
             btnAway.click()
 
             time.sleep(.5)
 
             # Selects the home teams from the dropdown menus
-            ddHome = Select(browser.find_element_by_id("hname"))
+            ddHome = Select(browser.find_element(By.ID, "hname"))
             ddHome.select_by_visible_text(home)  # Replace Home here
-            btnHome = browser.find_element_by_id("homebtn")
+            btnHome = browser.find_element(By.ID, "homebtn")
             btnHome.click()
 
-
-            #Clicks the play game button
-            playBtn = browser.find_element_by_id("playBtn")
-            setHome = browser.find_element_by_xpath('/html/body/div[3]/div[2]/div[1]/div/div[2]/div/div/form/div[3]/div/div/div/div/div[2]/input[2]')
+            # Clicks the play game button
+            playBtn = browser.find_element(By.ID, "playBtn")
+            setHome = browser.find_element(
+                By.XPATH, '/html/body/div[3]/div[2]/div[1]/div/div[2]/div/div/form/div[3]/div/div/div/div/div[2]/input[2]')
             setHome.click()
             playBtn.click()
-            time.sleep(2)
+            time.sleep(1)
             # iframe = browser.find_elements_by_tag_name('iframe')[1]
             # browser.switch_to.frame(iframe)
-            
+
             for i in range(0, sims):
-                time.sleep(3)
+                time.sleep(1)
                 # iframe = browser.find_elements_by_tag_name('iframe')[5]
                 # browser.switch_to.frame(iframe)
                 # print(browser.page_source)
@@ -118,26 +133,31 @@ while n < rounds + 1:
                 # browser.switch_to.frame(f)
                 while True:
                     try:
-                        frame = browser.find_element_by_xpath('//*[@id="fancybox-frame"]')
+                        frame = browser.find_element(
+                            By.XPATH, '//*[@id="fancybox-frame"]')
                         browser.switch_to.frame(frame)
                         break
                     except NoSuchElementException:
-                        print("Couldn't find iFrame. Trying again...")
-                
+                        z = 0
+                        # print("Couldn't find iFrame. Trying again...")
+
                 # pass1 = browser.find_element_by_id("PASSFIELD1")
                 while True:
                     try:
-                        awayScore = browser.find_element_by_xpath('/html/body/div[2]/div[1]/table/tbody/tr[2]/td[4]').text
-                        homeScore = browser.find_element_by_xpath('/html/body/div[2]/div[1]/table/tbody/tr[3]/td[4]').text
+                        awayScore = browser.find_element(
+                            By.XPATH, '/html/body/div[2]/div[1]/table/tbody/tr[2]/td[4]').text
+                        homeScore = browser.find_element(
+                            By.XPATH, '/html/body/div[2]/div[1]/table/tbody/tr[3]/td[4]').text
                         break
                     except NoSuchElementException:
-                        print("Couldn't find scores. Trying again...")
+                        z = 1
+                        # print("Couldn't find scores. Trying again...")
 
                 homeScore = int(homeScore)
                 awayScore = int(awayScore)
 
-                #Determining Winners for each game
-                #Landslide determines if they won by 10+ points
+                # Determining Winners for each game
+                # Landslide determines if they won by 10+ points
                 if (homeScore > awayScore):
                     homeWins = homeWins + 1
                     if ((homeScore - awayScore) > 10):
@@ -147,17 +167,14 @@ while n < rounds + 1:
                     awayWins = awayWins + 1
                     if ((awayScore - homeScore) > 10):
                         awayLandslide = awayLandslide + 1
-                
 
-
-
-                #Cleaning up the browser and refreshing to simulate another game
+                # Cleaning up the browser and refreshing to simulate another game
                 browser.refresh()
                 alert = browser.switch_to.alert
                 alert.accept()
                 browser.switch_to.default_content()
 
-                #EXTRA STUFF FOR TESTING
+                # EXTRA STUFF FOR TESTING
                 #     fancyClose = browser.find_element_by_id('fancybox-close')
                 # fancyClose.click()
                 # time.sleep(1)
@@ -168,34 +185,33 @@ while n < rounds + 1:
                 # playBtn.click()
                 # switch = switch + 1
 
-
-            #Printing result data
-            #With Dominations
+            # Printing result data
+            # With Dominations
             # print(home + ": " + str(homeWins) + "\t\t (by 10+): " + str(homeLandslide))
             # print(away + ": " + str(awayWins) + "\t\t (by 10+): " + str(awayLandslide))
             print(" ")
-            #Without Dominations
+            # Without Dominations
             print(home + ": " + str(homeWins) + "("+str(homeLandslide)+")")
             print(away + ": " + str(awayWins) + "("+str(awayLandslide)+")")
             print(" ")
 
-            #Writing result data -> Results
+            # Writing result data -> Results
 
             # With Dominations
             # r.write(home + ": " + str(homeWins) + "\t (by 10+): " + str(homeLandslide) + "\n")
             # r.write(away + ": " + str(awayWins) + "\t (by 10+): " + str(awayLandslide) + "\n")
-            #No Dominations
+            # No Dominations
             r.write(home + ": " + str(homeWins) + "\n")
             r.write(away + ": " + str(awayWins) + "\n")
             r.write("\n")
 
-            #Determining Winners
+            # Determining Winners
             if homeWins > awayWins:
                 w.write(home + "\n")
             else:
                 w.write(away + "\n")
 
-            #Closes the popup window so next teams can be selected.
+            # Closes the popup window so next teams can be selected.
             # fancyClose = browser.find_element_by_id('fancybox-close')
             # fancyClose.click()
             # time.sleep(1)
